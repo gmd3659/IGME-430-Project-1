@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Our simple HTTP server</title>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script type="text/babel">
+    
+    const parseJSON = (xhr, content, loginForm) => {
+      const obj = JSON.parse(xhr.response);
+      //console.log(Object.keys(obj.champ));
+      
+      if(obj.champ){
+        if(!obj.champ.name){
+          
+          let champArray = Object.keys(obj.champ);
+          console.log(champArray[0]);
+          
+          const divRow = document.createElement('div');
+          divRow.className = 'row';
+          divRow.id = 'content';
+          
+          for(let champ in champArray){
+            const divCol = document.createElement('div');
+            divCol.className  = "col-sm-3";
+            const divCard = document.createElement('div');
+            divCard.className  = "card bg-light";
+            const divBody = document.createElement('div');
+            divBody.className  = "card-body";
+            const header = document.createElement('h5');
+            header.className  = "card-title";
+            header.innerText  = champArray[champ];
+            const title = document.createElement('p');
+            title.className  = "card-text";
+            title.innerText  = obj.champ[champArray[champ]].title;
+            const tags = document.createElement('p');
+            tags.className = "card-text";
+            tags.innerText = `Roles: ${obj.champ[champArray[champ]].tags}`;
+            const info = document.createElement('p');
+            info.className = "card-text";
+            info.innerText = `Attack: ${obj.champ[champArray[champ]].info.attack} \n
+            Defense: ${obj.champ[champArray[champ]].info.defense} \n
+            Magic: ${obj.champ[champArray[champ]].info.magic} \n
+            Difficulty: ${obj.champ[champArray[champ]].info.difficulty}`;
+            const hp = document.createElement('p');
+            hp.className = "card-text";
+            hp.innerText = `HP at Lvl1: ${obj.champ[champArray[champ]].stats.hp}`
+            const inputBtn = document.createElement('input');
+            inputBtn.className = 'btn btn-primary';
+            inputBtn.type = 'submit';
+            inputBtn.value = 'Add Favorite';
+
+            divBody.appendChild(header);
+            divBody.appendChild(title);
+            divBody.appendChild(tags);
+            divBody.appendChild(info);
+            divBody.appendChild(hp);
+            divBody.appendChild(inputBtn);
+            divCard.appendChild(divBody);
+            divCol.appendChild(divCard);
+            divRow.appendChild(divCol);
+          }
+          
+          content.replaceWith(divRow);
+          
+        }else{
+            const divRow = document.createElement('div');
+            divRow.className = 'row';
+            divRow.id = 'content';
+            const divCol = document.createElement('div');
+            divCol.className  = "col-sm-3";
+            const divCard = document.createElement('div');
+            divCard.className  = "card bg-light";
+            const divBody = document.createElement('div');
+            divBody.className  = "card-body";
+            const header = document.createElement('h5');
+            header.className  = "card-title";
+            header.innerText  = obj.champ.name;
+            const title = document.createElement('p');
+            title.className  = "card-text";
+            title.innerText  = obj.champ.title;
+            const tags = document.createElement('p');
+            tags.className = "card-text";
+            tags.innerText = `Roles: ${obj.champ.tags}`;
+            const info = document.createElement('p');
+            info.className = "card-text";
+            info.innerText = `Attack: ${obj.champ.info.attack} \n
+            Defense: ${obj.champ.info.defense} \n
+            Magic: ${obj.champ.info.magic} \n
+            Difficulty: ${obj.champ.info.difficulty}`;
+            const hp = document.createElement('p');
+            hp.className = "card-text";
+            hp.innerText = `HP at Lvl1: ${obj.champ.stats.hp}`
+            const inputBtn = document.createElement('input');
+            inputBtn.className = 'btn btn-primary';
+            inputBtn.type = 'submit';
+            inputBtn.value = 'Add Favorite';
+          
+            divBody.appendChild(header);
+            divBody.appendChild(title);
+            divBody.appendChild(tags);
+            divBody.appendChild(info);
+            divBody.appendChild(hp);
+            divBody.appendChild(inputBtn);
+            divCard.appendChild(divBody);
+            divCol.appendChild(divCard);
+            divRow.appendChild(divCol);
+
+            content.replaceWith(divRow);
+        }
+      }
+      
+      if(obj.name){
+        const loggedIn = document.createElement('form');
+        loggedIn.className = 'form-inline';
+        loggedIn.id = "loginForm";
+        const nameLabel = document.createElement('label');
+        nameLabel.innerHTML = "Logged in as: "
+        nameLabel.for = 'summonerName';
+        const summoner = document.createElement('h5');
+        summoner.id = "summonerName";
+        summoner.innerHTML = obj.name;
+        
+        loggedIn.appendChild(nameLabel);
+        loggedIn.appendChild(summoner);
+        
+        loginForm.replaceWith(loggedIn);
+      }
+    };
+
+    const handleResponse = (xhr) => {
+     	
+      const content = document.querySelector('#content');
+      const loginContent = document.querySelector('#loginForm');
+       //check the status code
+      /*switch(xhr.status) {
+        case 200: //success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 201: //created
+          content.innerHTML = '<b>Create</b>';
+          break;
+        case 204: //updated (no response back from server)
+          content.innerHTML = '<b>Updated (No Content)</b>';
+          return;
+        case 400: //bad request
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 404: //notFound
+          content.innerHTML = `<b>Page not found</b>`;
+          break;
+        default: //any other status code
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }*/
+
+      //parse response 
+      parseJSON(xhr, content, loginForm);
+      
+      
+    };
+
+    const sendLoginPost = (e, nameForm) => {
+        //prevent the browser's default action (to send the form on its own)
+      e.preventDefault();
+      
+      //grab the forms action (url to go to)
+      //and method (HTTP method - POST in this case)
+      const nameAction = nameForm.getAttribute('action');
+      const nameMethod = nameForm.getAttribute('method');
+      
+      //grab the form's name and age fields so we can check user input
+      const loginField = nameForm.querySelector('#summonerName');
+      
+      //create a new Ajax request (remember this is asynchronous)
+      const xhr = new XMLHttpRequest();
+      //set the method (POST) and url (action field from form)
+      xhr.open(nameMethod, nameAction);
+      
+      //set our request type to x-www-form-urlencoded
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      //set our requested response type in hopes of a JSON response
+      xhr.setRequestHeader ('Accept', 'application/json');
+      
+      //set our function to handle the response
+      xhr.onload = () => handleResponse(xhr);
+      
+      const formData = `name=${loginField.value}`;
+      
+      //send our request with the data
+      xhr.send(formData);
+    
+      return false;
+    };
+
+  const sendSearchPost = (e, nameForm) => {
+          //prevent the browser's default action (to send the form on its own)
+        e.preventDefault();
+
+        //grab the forms action (url to go to)
+        //and method (HTTP method - POST in this case)
+        const nameAction = nameForm.getAttribute('action');
+        const nameMethod = nameForm.getAttribute('method');
+
+        //grab the form's name and age fields so we can check user input
+        const championField = nameForm.querySelector('#championName');
+
+        //create a new Ajax request (remember this is asynchronous)
+        const xhr = new XMLHttpRequest();
+        //set the method (POST) and url (action field from form)
+        xhr.open(nameMethod, nameAction);
+
+        //set our request type to x-www-form-urlencoded
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        //set our requested response type in hopes of a JSON response
+        xhr.setRequestHeader ('Accept', 'application/json');
+
+        //set our function to handle the response
+        xhr.onload = () => handleResponse(xhr);
+
+        const formData = `term=${championField.value}`;
+
+        //send our request with the data
+        xhr.send(formData);
+
+        return false;
+    };
+
+    const sendGet = (e, methodRequest) => 
+    {
+      e.preventDefault();
+
+      const xhr = new XMLHttpRequest();
+      xhr.open(methodRequest.method, methodRequest.action); // check these for correct values // value is undefined
+      xhr.setRequestHeader ("Accept", 'application/json');
+      xhr.onload = () => handleResponse(xhr);
+      xhr.send();
+      
+      return false;
+    };
+
+    const init = () => {
+      const loginForm = document.querySelector('#loginForm'); 
+      const login = (e) => sendLoginPost(e, loginForm);
+      loginForm.addEventListener('submit', login);
+
+      const searchForm = document.querySelector('#searchForm');
+      const getResponse = (e) => sendSearchPost(e, searchForm);
+      searchForm.addEventListener('submit', getResponse);
+      
+      const favoriteForm = document.querySelector('#favoriteForm');
+      const getFavorites = (e) => sendGet(e, favoriteForm);
+      favoriteForm.addEventListener('submit', getFavorites);
+    };
+
+    window.onload = init;
+
+  </script>
+</head>
+<body>
+    <container fluid>
+        <div class="jumbotron">
+            <h1 class="display-4">LoL Champion Search</h1>
+            <p class="lead">Find stats on any champion in League of Legends</p>
+            <hr class="my-4">
+            <form class="form-inline" id="loginForm" action="/logIn" method="POST">
+                <label for="summonerName">Summoner Name:</label>
+                <input  type="text" class="form-control" id="summonerName" placeholder="Legend27">
+                <input class="btn btn-primary" type="submit" value="Log In" />
+            </form>
+            <hr class="my-4">
+            <form class="form-inline" id="searchForm" action="/getChamps" method="POST">
+                <label for="championName">Champion:</label>
+                <input type="text" class ="form-control" id="championName" placeholder="Teemo">
+                <input class="btn btn-primary" type="submit" value="Search" />
+            </form>
+            <hr class="my-4">
+            <form class="form-inline" id="favoriteForm" action="/getFavorites" method="GET">
+              <input class="btn btn-primary" type="submit" value="Show Favorites" />
+            </form>
+        </div>
+        <div id="content"></div>
+    </container>
+  
+  
+</body>
+</html>
